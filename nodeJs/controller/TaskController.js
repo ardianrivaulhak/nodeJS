@@ -21,9 +21,16 @@ class TaskController {
     const { title, descriptions, completed } = req.body;
     await Model.createTask(title, descriptions, completed, (err) => {
       if (err) {
-        res.status(500).json({
-          message: 'Internal Server Error',
-          serverMessage: err,
+        err.map((el) => {
+          if (el === 'Completed default must false' || el === 'Title must be filled' || el === 'Descriptions must be filled') {
+            res.status(401).json({
+              serverMessage: el,
+            });
+          } else {
+            res.status(500).json({
+              message: 'Internal Server Error',
+            });
+          }
         });
       } else {
         res.status(201).json({
