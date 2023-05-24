@@ -1,5 +1,7 @@
 const logRequest = (req, res, next) => {
-  console.log('Time:', Date.now(), req.path);
+  const method = req.method;
+  const path = req.path;
+  console.log('Time:', Date.now(), `${method}${path}`);
   next();
 };
 

@@ -4,6 +4,7 @@ class TaskController {
   static async getAllTasks(req, res) {
     await Model.getAllTasks((err, tasks) => {
       if (err) {
+        console.log(err);
         res.status(500).json({
           message: 'Internal Server Error',
           serverMessage: err,
@@ -19,26 +20,35 @@ class TaskController {
 
   static async createTasks(req, res) {
     let { title, descriptions, completed = false } = req.body;
-    await Model.createTasks(title, descriptions, completed, (err) => {
-      if (err) {
-        err.map((el) => {
-          if (el === 'Completed default must false' || el === 'Title must be filled' || el === 'Descriptions must be filled') {
-            res.status(401).json({
-              serverMessage: el,
-            });
-          } else {
-            res.status(500).json({
-              message: 'Internal Server Error',
-            });
-          }
-        });
-      } else {
-        res.status(201).json({
-          message: 'Success Create Task',
-          data: req.body,
-        });
-      }
-    });
+    const errors = Model.validationForm(title, descriptions, completed);
+
+    if (errors.length > 0) {
+      errors.forEach((error) => {
+        if (error === 'Completed default must be false' || error === 'Title must be filled' || error === 'Descriptions must be filled') {
+          res.status(401).json({
+            serverMessage: error,
+          });
+        }
+      });
+    } else {
+      await Model.createTasks(title, descriptions, completed, (err) => {
+        if (err === 'Title and descriptions must be unique') {
+          // console.log(err);
+          res.status(401).json({
+            serverMessage: err,
+          });
+        } else if (err) {
+          res.status(500).json({
+            message: 'Internal Server Error',
+          });
+        } else {
+          res.status(201).json({
+            message: 'Success Create Task',
+            data: req.body,
+          });
+        }
+      });
+    }
   }
 
   static async getTasksById(req, res) {
@@ -81,7 +91,7 @@ class TaskController {
   static async deleteTaskById(req, res) {
     const { id } = req.params;
 
-    await Model.deleteTaskById(+id, (err) => {
+    await Model.deleteTaskById(+id, (err, tasks) => {
       if (err) {
         res.status(500).json({
           message: 'Internal Server Error',
@@ -89,8 +99,7 @@ class TaskController {
         });
       } else {
         res.status(200).json({
-          message: 'Successfully read tasks by id',
-          data: req.body,
+          message: 'Successfully delete tasks by id',
         });
       }
     });

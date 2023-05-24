@@ -18,16 +18,37 @@ class Model {
     if (errors.length) {
       callback(errors);
     } else {
+      // Check if title and descriptions are the same
       const query = `
-                INSERT INTO tasks (title, descriptions, completed)
-                VALUES ('${title}', '${descriptions}', '${completed}');
-            `;
+        SELECT COUNT(*) AS count
+        FROM tasks
+        WHERE title = '${title}' AND descriptions = '${descriptions}'
+      `;
 
-      dbPool.execute(query, (err) => {
+      dbPool.execute(query, (err, rows) => {
         if (err) {
+          console.log(err);
           callback(err);
         } else {
-          callback(null);
+          const count = rows[0].count;
+          if (count > 0) {
+            // Title and descriptions are the same, return error
+            callback('Title and descriptions must be unique', err);
+          } else {
+            completed = false;
+            const insertQuery = `
+              INSERT INTO tasks (title, descriptions, completed)
+              VALUES ('${title}', '${descriptions}', ${completed});
+            `;
+
+            dbPool.execute(insertQuery, (err) => {
+              if (err) {
+                callback(err);
+              } else {
+                callback(null);
+              }
+            });
+          }
         }
       });
     }
@@ -80,8 +101,8 @@ class Model {
       errors.push('Descriptions must be filled');
     }
 
-    if (completed !== 0) {
-      errors.push('Completed default must false');
+    if (completed === 'true') {
+      errors.push('Completed default must be false');
     }
 
     return errors;
