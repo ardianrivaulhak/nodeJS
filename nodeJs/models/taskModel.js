@@ -73,6 +73,7 @@ class Model {
 
     dbPool.execute(query, (err) => {
       if (err) {
+        console.log(err);
         callback(err);
       } else {
         callback(null);
@@ -83,6 +84,7 @@ class Model {
   static deleteTaskById(id, callback) {
     const query = `DELETE FROM tasks WHERE id = '${id}'`;
     dbPool.execute(query, (err, rows) => {
+      console.log(err);
       if (err) {
         callback(err);
       } else {
