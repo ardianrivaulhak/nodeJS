@@ -8,25 +8,25 @@ const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Home" component={Home} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Stack.Navigator>
+      <Stack.Screen name="Home" component={Home} />
+    </Stack.Navigator>
   );
 };
 
 export default function App() {
   return (
-    <Tab.Navigator
-      screenOptions={{
-        headerShown: false,
-        tabBarLabel: () => {
-          return null;
-        },
-      }}
-    >
-      <Tab.Screen name="AppNavigator" component={AppNavigator} />
-    </Tab.Navigator>
+    <NavigationContainer>
+      <Tab.Navigator
+        screenOptions={{
+          headerShown: false,
+          tabBarLabel: () => {
+            return null;
+          },
+        }}
+      >
+        <Tab.Screen name="AppNavigator" component={AppNavigator} />
+      </Tab.Navigator>
+    </NavigationContainer>
   );
 }
