@@ -73,7 +73,6 @@ class Model {
 
     dbPool.execute(query, (err) => {
       if (err) {
-        console.log(err);
         callback(err);
       } else {
         callback(null);
